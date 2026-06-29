@@ -1,0 +1,185 @@
+{
+  "name": "encoding-keeper",
+  "displayName": "Encoding Keeper",
+  "description": "Remember and restore file encodings automatically.",
+  "version": "0.0.1",
+  "icon": "assets/icon.png",
+  "engines": {
+    "vscode": "^1.110.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:encodingKeeper.showCurrentEncoding",
+    "onCommand:encodingKeeper.openWithRememberedEncoding",
+    "onCommand:encodingKeeper.clearEncodingRecord",
+    "onCommand:encodingKeeper.clearAllEncodingRecords",
+    "onCommand:encodingKeeper.recordUtf8",
+    "onCommand:encodingKeeper.recordUtf8Bom",
+    "onCommand:encodingKeeper.recordGb2312",
+    "onCommand:encodingKeeper.recordGbk",
+    "onCommand:encodingKeeper.recordGb18030",
+    "onCommand:encodingKeeper.recordBig5",
+    "onCommand:encodingKeeper.recordShiftJis",
+    "onCommand:encodingKeeper.recordWindows1252"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "encodingKeeper.showCurrentEncoding",
+        "title": "Encoding Keeper: 显示当前编码"
+      },
+      {
+        "command": "encodingKeeper.openWithRememberedEncoding",
+        "title": "Encoding Keeper: 使用记录编码打开"
+      },
+      {
+        "command": "encodingKeeper.clearEncodingRecord",
+        "title": "Encoding Keeper: 清除编码记录"
+      },
+      {
+        "command": "encodingKeeper.clearAllEncodingRecords",
+        "title": "Encoding Keeper: 清除所有编码记录"
+      },
+      {
+        "command": "encodingKeeper.recordUtf8",
+        "title": "UTF-8"
+      },
+      {
+        "command": "encodingKeeper.recordUtf8Bom",
+        "title": "UTF-8 with BOM"
+      },
+      {
+        "command": "encodingKeeper.recordGb2312",
+        "title": "GB2312"
+      },
+      {
+        "command": "encodingKeeper.recordGbk",
+        "title": "GBK"
+      },
+      {
+        "command": "encodingKeeper.recordGb18030",
+        "title": "GB18030"
+      },
+      {
+        "command": "encodingKeeper.recordBig5",
+        "title": "Big5"
+      },
+      {
+        "command": "encodingKeeper.recordShiftJis",
+        "title": "Shift JIS"
+      },
+      {
+        "command": "encodingKeeper.recordWindows1252",
+        "title": "Windows 1252"
+      }
+    ],
+    "submenus": [
+      {
+        "id": "encodingKeeper.recordEncoding",
+        "label": "Encoding Keeper: 记录使用编码"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "submenu": "encodingKeeper.recordEncoding",
+          "when": "resourceScheme == file",
+          "group": "navigation@90"
+        }
+      ],
+      "encodingKeeper.recordEncoding": [
+        {
+          "command": "encodingKeeper.recordUtf8",
+          "when": "resourceScheme == file",
+          "group": "encoding@10"
+        },
+        {
+          "command": "encodingKeeper.recordGb2312",
+          "when": "resourceScheme == file",
+          "group": "encoding@20"
+        },
+        {
+          "command": "encodingKeeper.recordGbk",
+          "when": "resourceScheme == file",
+          "group": "encoding@30"
+        },
+        {
+          "command": "encodingKeeper.recordUtf8Bom",
+          "when": "resourceScheme == file",
+          "group": "encoding@35"
+        },
+        {
+          "command": "encodingKeeper.recordGb18030",
+          "when": "resourceScheme == file",
+          "group": "encoding@40"
+        },
+        {
+          "command": "encodingKeeper.recordBig5",
+          "when": "resourceScheme == file",
+          "group": "encoding@50"
+        },
+        {
+          "command": "encodingKeeper.recordShiftJis",
+          "when": "resourceScheme == file",
+          "group": "encoding@60"
+        },
+        {
+          "command": "encodingKeeper.recordWindows1252",
+          "when": "resourceScheme == file",
+          "group": "encoding@70"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "encodingKeeper.showCurrentEncoding",
+          "when": "resourceScheme == file",
+          "group": "navigation@90"
+        },
+        {
+          "command": "encodingKeeper.openWithRememberedEncoding",
+          "when": "resourceScheme == file",
+          "group": "navigation@91"
+        },
+        {
+          "command": "encodingKeeper.clearEncodingRecord",
+          "when": "resourceScheme == file",
+          "group": "navigation@92"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.125.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "24.x",
+    "typescript-eslint": "^8.61.1",
+    "eslint": "^10.5.0",
+    "esbuild": "^0.28.1",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^6.0.3",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.0.0"
+  },
+  "overrides": {
+    "diff": "^8.0.4",
+    "serialize-javascript": "^7.0.6"
+  }
+}
