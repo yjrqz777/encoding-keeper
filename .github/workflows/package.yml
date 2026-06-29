@@ -2,6 +2,11 @@ name: Package VSIX
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to create or update, for example v0.0.1. Leave empty to skip GitHub Release."
+        required: false
+        type: string
   push:
     branches:
       - master
@@ -10,7 +15,7 @@ on:
       - master
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   package:
@@ -37,3 +42,12 @@ jobs:
         with:
           name: encoding-keeper-vsix
           path: "*.vsix"
+
+      - name: Create GitHub Release
+        if: github.event_name == 'workflow_dispatch' && inputs.tag != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: Encoding Keeper ${{ inputs.tag }}
+          files: "*.vsix"
+          generate_release_notes: true
