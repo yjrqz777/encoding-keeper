@@ -1,0 +1,51 @@
+name: Package and Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish to VS Code Marketplace"
+        required: true
+        type: boolean
+        default: false
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile
+        run: npm run package
+
+      - name: Package VSIX
+        run: npm run vsix
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: encoding-keeper-vsix
+          path: "*.vsix"
+
+      - name: Publish to VS Code Marketplace
+        if: github.event_name == 'push' || inputs.publish
+        run: npx vsce publish --packagePath ./*.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}

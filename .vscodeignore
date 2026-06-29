@@ -1,12 +1,16 @@
+.github/**
 .vscode/**
 .vscode-test/**
 out/**
 node_modules/**
 src/**
+sandbox/**
 .gitignore
 .yarnrc
 esbuild.js
 vsc-extension-quickstart.md
+assets/*.svg
+encoding-keeper-*.vsix
 **/tsconfig.json
 **/eslint.config.mjs
 **/*.map

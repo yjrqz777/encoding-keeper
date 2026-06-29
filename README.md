@@ -1,71 +1,129 @@
-# encoding-keeper README
+# Encoding Keeper
 
-This is the README for your extension "encoding-keeper". After writing up a brief description, we recommend including the following sections.
+Encoding Keeper helps VS Code remember which encoding should be used for each file or folder in a workspace.
+
+It is useful when a project contains mixed encodings, for example UTF-8 files alongside GB2312, GBK, or GB18030 legacy files.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- Record an encoding for a file from the Explorer context menu.
+- Record an encoding for a folder and apply it to files inside that folder.
+- Save records in the workspace at `.vscode/encoding-keeper.json`.
+- Automatically reopen files with the recorded encoding the next time they are opened.
+- Prefer exact file records over folder records.
+- Show the current file encoding in the status bar.
 
-For example if there is an image subfolder under your extension project workspace:
+## Usage
 
-\!\[feature X\]\(images/feature-x.png\)
+Right-click a file or folder in Explorer, then choose:
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+```text
+Encoding Keeper: 记录使用编码
+```
+
+Choose one of the common encodings:
+
+- UTF-8
+- GB2312
+- GBK
+- UTF-8 with BOM
+- GB18030
+- Big5
+- Shift JIS
+- Windows 1252
+
+When a recorded file is opened again, Encoding Keeper will try to reopen it with the remembered encoding automatically.
+
+## Record File
+
+Encoding records are stored in:
+
+```text
+.vscode/encoding-keeper.json
+```
+
+Example:
+
+```json
+{
+  "version": 1,
+  "files": {
+    "gb2312.txt": "utf8",
+    "12/gb2312.txt": "gb2312"
+  },
+  "folders": {
+    "12": "utf8"
+  }
+}
+```
+
+Matching order:
+
+1. Exact file record in `files`.
+2. Nearest parent folder record in `folders`.
+3. VS Code default encoding behavior.
+
+For example, `12/gb2312.txt` uses `gb2312` because the exact file record wins over the folder record for `12`.
+
+## Commands
+
+- `Encoding Keeper: 显示当前编码`
+- `Encoding Keeper: 使用记录编码打开`
+- `Encoding Keeper: 清除编码记录`
+- `Encoding Keeper: 清除所有编码记录`
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+VS Code 1.100.0 or newer is required. No external runtime dependency is required.
 
-## Extension Settings
+## Development
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+Install dependencies:
 
-For example:
+```bash
+npm install
+```
 
-This extension contributes the following settings:
+Compile:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+```bash
+npm run compile
+```
 
-## Known Issues
+Run tests:
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+```bash
+npm test
+```
+
+Press `F5` in VS Code to launch an Extension Development Host.
+
+## Packaging and Publishing
+
+Create a local `.vsix` package:
+
+```bash
+npm run package
+npx @vscode/vsce package --no-dependencies
+```
+
+Install the generated package locally:
+
+```bash
+code --install-extension encoding-keeper-0.0.1.vsix
+```
+
+This repository includes a GitHub Actions workflow at `.github/workflows/release.yml`.
+
+To publish to the VS Code Marketplace:
+
+1. Create a VS Code Marketplace publisher. The current `publisher` in `package.json` is `yjrqz777`.
+2. Create an Azure DevOps personal access token for Marketplace publishing.
+3. Add the token to the GitHub repository secret named `VSCE_PAT`.
+4. Run the `Package and Publish` workflow manually and set `publish` to `true`, or push a version tag such as `v0.0.1`.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Initial release.
