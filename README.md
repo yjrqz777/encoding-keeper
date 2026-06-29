@@ -115,7 +115,14 @@ code --install-extension encoding-keeper-0.0.1.vsix
 
 This repository includes a package-only GitHub Actions workflow at `.github/workflows/package.yml`. It builds the extension and uploads a `.vsix` artifact without requiring Marketplace credentials.
 
-When running `Package VSIX` manually, provide a release tag such as `v0.0.1` to create or update a GitHub Release and attach the generated `.vsix`.
+Push a version tag such as `v0.0.1` to run `Package VSIX`, create a GitHub Release, and attach the generated `.vsix`.
+
+```bash
+git tag v0.0.1
+git push origin v0.0.1
+```
+
+You can also run `Package VSIX` manually and provide a release tag to create or update a GitHub Release.
 
 The Marketplace publishing workflow is at `.github/workflows/release.yml`.
 
