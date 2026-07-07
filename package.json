@@ -32,7 +32,15 @@
     "onCommand:encodingKeeper.recordGb18030",
     "onCommand:encodingKeeper.recordBig5",
     "onCommand:encodingKeeper.recordShiftJis",
-    "onCommand:encodingKeeper.recordWindows1252"
+    "onCommand:encodingKeeper.recordWindows1252",
+    "onCommand:encodingKeeper.convertUtf8",
+    "onCommand:encodingKeeper.convertUtf8Bom",
+    "onCommand:encodingKeeper.convertGb2312",
+    "onCommand:encodingKeeper.convertGbk",
+    "onCommand:encodingKeeper.convertGb18030",
+    "onCommand:encodingKeeper.convertBig5",
+    "onCommand:encodingKeeper.convertShiftJis",
+    "onCommand:encodingKeeper.convertWindows1252"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -84,12 +92,48 @@
       {
         "command": "encodingKeeper.recordWindows1252",
         "title": "Windows 1252"
+      },
+      {
+        "command": "encodingKeeper.convertUtf8",
+        "title": "UTF-8"
+      },
+      {
+        "command": "encodingKeeper.convertUtf8Bom",
+        "title": "UTF-8 with BOM"
+      },
+      {
+        "command": "encodingKeeper.convertGb2312",
+        "title": "GB2312"
+      },
+      {
+        "command": "encodingKeeper.convertGbk",
+        "title": "GBK"
+      },
+      {
+        "command": "encodingKeeper.convertGb18030",
+        "title": "GB18030"
+      },
+      {
+        "command": "encodingKeeper.convertBig5",
+        "title": "Big5"
+      },
+      {
+        "command": "encodingKeeper.convertShiftJis",
+        "title": "Shift JIS"
+      },
+      {
+        "command": "encodingKeeper.convertWindows1252",
+        "title": "Windows 1252"
       }
     ],
     "submenus": [
       {
         "id": "encodingKeeper.recordEncoding",
         "label": "Encoding Keeper: 记录使用编码"
+      },
+      {
+        "id": "encodingKeeper.convertEncoding",
+        "label": "Encoding Keeper: 一键转码为"
       }
     ],
     "menus": {
@@ -98,6 +142,11 @@
           "submenu": "encodingKeeper.recordEncoding",
           "when": "resourceScheme == file",
           "group": "navigation@90"
+        },
+        {
+          "submenu": "encodingKeeper.convertEncoding",
+          "when": "resourceScheme == file",
+          "group": "navigation@91"
         }
       ],
       "encodingKeeper.recordEncoding": [
@@ -142,7 +191,54 @@
           "group": "encoding@70"
         }
       ],
+      "encodingKeeper.convertEncoding": [
+        {
+          "command": "encodingKeeper.convertUtf8",
+          "when": "resourceScheme == file",
+          "group": "encoding@10"
+        },
+        {
+          "command": "encodingKeeper.convertGb2312",
+          "when": "resourceScheme == file",
+          "group": "encoding@20"
+        },
+        {
+          "command": "encodingKeeper.convertGbk",
+          "when": "resourceScheme == file",
+          "group": "encoding@30"
+        },
+        {
+          "command": "encodingKeeper.convertUtf8Bom",
+          "when": "resourceScheme == file",
+          "group": "encoding@35"
+        },
+        {
+          "command": "encodingKeeper.convertGb18030",
+          "when": "resourceScheme == file",
+          "group": "encoding@40"
+        },
+        {
+          "command": "encodingKeeper.convertBig5",
+          "when": "resourceScheme == file",
+          "group": "encoding@50"
+        },
+        {
+          "command": "encodingKeeper.convertShiftJis",
+          "when": "resourceScheme == file",
+          "group": "encoding@60"
+        },
+        {
+          "command": "encodingKeeper.convertWindows1252",
+          "when": "resourceScheme == file",
+          "group": "encoding@70"
+        }
+      ],
       "editor/context": [
+        {
+          "submenu": "encodingKeeper.convertEncoding",
+          "when": "resourceScheme == file",
+          "group": "navigation@89"
+        },
         {
           "command": "encodingKeeper.showCurrentEncoding",
           "when": "resourceScheme == file",
@@ -193,5 +289,8 @@
   "overrides": {
     "diff": "^8.0.4",
     "serialize-javascript": "^7.0.6"
+  },
+  "dependencies": {
+    "iconv-lite": "^0.7.3"
   }
 }

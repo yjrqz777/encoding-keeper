@@ -1,9 +1,9 @@
 # Encoding Keeper
 
-Encoding Keeper helps VS Code remember which encoding should be used for each file or folder in a workspace.
+Encoding Keeper helps VS Code remember which encoding should be used for each file or folder in a workspace.  
 Encoding Keeper 帮助 VS Code 记住工作区中每个文件或文件夹应该使用的编码。
 
-It is useful when a project contains mixed encodings, for example UTF-8 files alongside GB2312, GBK, or GB18030 legacy files.
+It is useful when a project contains mixed encodings, for example UTF-8 files alongside GB2312, GBK, or GB18030 legacy files.  
 当项目中同时存在多种编码时很有用，例如 UTF-8 文件与 GB2312、GBK 或 GB18030 等旧编码文件混合存在。
 
 ## Features
@@ -17,7 +17,7 @@ It is useful when a project contains mixed encodings, for example UTF-8 files al
 
 ## Usage
 
-Right-click a file or folder in Explorer, then choose:
+Right-click a file or folder in Explorer, then choose:  
 在资源管理器中右键单击文件或文件夹，然后选择：
 
 ```text
