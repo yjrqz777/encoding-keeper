@@ -358,6 +358,7 @@ async function convertFileToEncoding(
 	try {
 		const openDocument = findOpenDocument(uri);
 		const wasOpen = Boolean(openDocument);
+		const wasActive = vscode.window.activeTextEditor?.document.uri.toString() === getUriKey(uri);
 		if (openDocument?.isDirty) {
 			summary.skipped.push(`${uri.fsPath} (unsaved changes)`);
 			return;
@@ -370,21 +371,51 @@ async function convertFileToEncoding(
 		}
 
 		const rememberedEncoding = await getRememberedEncoding(uri);
-		const text = rememberedEncoding
-			? decodeText(bytes, rememberedEncoding)
+		const sourceEncoding = inferSourceEncoding(bytes, rememberedEncoding, openDocument?.encoding);
+		const text = sourceEncoding
+			? decodeText(bytes, sourceEncoding)
 			: (openDocument ?? await vscode.workspace.openTextDocument(uri)).getText();
 		const encodedBytes = encodeText(text, choice.encoding);
+
+		if (wasOpen) {
+			await closeOpenTabsForUri(uri);
+		}
 
 		await vscode.workspace.fs.writeFile(uri, encodedBytes);
 		summary.converted.push(uri);
 
 		if (wasOpen) {
-			await reopenWithEncoding(uri, choice.encoding, false);
+			await reopenWithEncoding(uri, choice.encoding, wasActive);
 		}
 	} catch (error) {
 		const detail = error instanceof Error ? error.message : String(error);
 		summary.failed.push(`${uri.fsPath} (${detail})`);
 	}
+}
+
+async function closeOpenTabsForUri(uri: vscode.Uri): Promise<void> {
+	const tabs = vscode.window.tabGroups.all
+		.flatMap((group) => group.tabs)
+		.filter((tab) => isTabForUri(tab, uri));
+
+	if (tabs.length === 0) {
+		return;
+	}
+
+	await vscode.window.tabGroups.close(tabs, true);
+}
+
+function isTabForUri(tab: vscode.Tab, uri: vscode.Uri): boolean {
+	const input = tab.input;
+	if (input instanceof vscode.TabInputText) {
+		return getUriKey(input.uri) === getUriKey(uri);
+	}
+
+	if (input instanceof vscode.TabInputTextDiff) {
+		return getUriKey(input.original) === getUriKey(uri) || getUriKey(input.modified) === getUriKey(uri);
+	}
+
+	return false;
 }
 
 async function collectFiles(uri: vscode.Uri): Promise<vscode.Uri[]> {
@@ -473,6 +504,27 @@ function decodeText(bytes: Uint8Array, encoding: string): string {
 	}
 
 	return iconv.decode(Buffer.from(bytes), iconvEncoding);
+}
+
+function inferSourceEncoding(
+	bytes: Uint8Array,
+	rememberedEncoding: string | undefined,
+	documentEncoding: string | undefined
+): string | undefined {
+	if (isUtf8Bytes(bytes)) {
+		return 'utf8';
+	}
+
+	return rememberedEncoding ?? documentEncoding;
+}
+
+function isUtf8Bytes(bytes: Uint8Array): boolean {
+	try {
+		new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 function containsNullByte(bytes: Uint8Array): boolean {

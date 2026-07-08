@@ -1,45 +1,60 @@
 # Encoding Keeper
 
-Encoding Keeper helps VS Code remember which encoding should be used for each file or folder in a workspace.  
-Encoding Keeper 帮助 VS Code 记住工作区中每个文件或文件夹应该使用的编码。
+Encoding Keeper is a VS Code extension for projects that contain files with mixed encodings. It remembers the preferred encoding for individual files or folders, restores that encoding when files are opened, and can convert files or folders to another encoding.
 
-It is useful when a project contains mixed encodings, for example UTF-8 files alongside GB2312, GBK, or GB18030 legacy files.  
-当项目中同时存在多种编码时很有用，例如 UTF-8 文件与 GB2312、GBK 或 GB18030 等旧编码文件混合存在。
+Encoding Keeper 是一个 VS Code 扩展，用于管理工作区内混合编码文件。它可以记录文件或文件夹的编码、打开时自动恢复编码，并支持一键转码。
 
 ## Features
 
-- Record an encoding for a file from the Explorer context menu.
-- Record an encoding for a folder and apply it to files inside that folder.
-- Save records in the workspace at `.vscode/encoding-keeper.json`.
-- Automatically reopen files with the recorded encoding the next time they are opened.
+- Record an encoding for a file or folder from the Explorer context menu.
+- Store records in `.vscode/encoding-keeper.json` inside the workspace.
+- Automatically reopen files with the remembered encoding.
 - Prefer exact file records over folder records.
-- Show the current file encoding in the status bar.
+- Show the active file encoding in the status bar.
+- Convert a file or folder to another encoding.
+- Ask for confirmation before converting a folder.
+- Skip dirty files during conversion to avoid overwriting unsaved changes.
 
-## Usage
-
-Right-click a file or folder in Explorer, then choose:  
-在资源管理器中右键单击文件或文件夹，然后选择：
-
-```text
-Encoding Keeper: 记录使用编码
-```
-
-Choose one of the common encodings:
+## Supported Encodings
 
 - UTF-8
+- UTF-8 with BOM
 - GB2312
 - GBK
-- UTF-8 with BOM
 - GB18030
 - Big5
 - Shift JIS
 - Windows 1252
 
-When a recorded file is opened again, Encoding Keeper will try to reopen it with the remembered encoding automatically.
+## Usage
+
+### Record an Encoding
+
+Right-click a file or folder in Explorer, then choose:
+
+```text
+Encoding Keeper: 记录使用编码
+```
+
+Select the encoding to remember. Folder records apply to files inside that folder unless a file has its own exact record.
+
+### Convert Encoding
+
+Right-click a file or folder in Explorer, then choose:
+
+```text
+Encoding Keeper: 一键转码为
+```
+
+Select the target encoding. File conversion runs immediately. Folder conversion shows a confirmation dialog first, then processes files recursively.
+
+When converting an open file, Encoding Keeper closes the editor tab before writing the converted bytes. If the file was active, it is reopened with the target encoding afterward.
+
+If the source bytes are valid UTF-8, conversion decodes them as UTF-8 even when the file is currently displayed with the wrong encoding. This avoids saving already-garbled editor text when, for example, a UTF-8 file was opened as GB2312.
 
 ## Record File
 
-Encoding records are stored in:
+Encoding records are stored at:
 
 ```text
 .vscode/encoding-keeper.json
@@ -51,11 +66,10 @@ Example:
 {
   "version": 1,
   "files": {
-    "gb2312.txt": "utf8",
-    "12/gb2312.txt": "gb2312"
+    "legacy/gb2312.txt": "gb2312"
   },
   "folders": {
-    "12": "utf8"
+    "legacy": "gbk"
   }
 }
 ```
@@ -66,18 +80,25 @@ Matching order:
 2. Nearest parent folder record in `folders`.
 3. VS Code default encoding behavior.
 
-For example, `12/gb2312.txt` uses `gb2312` because the exact file record wins over the folder record for `12`.
-
 ## Commands
 
 - `Encoding Keeper: 显示当前编码`
 - `Encoding Keeper: 使用记录编码打开`
 - `Encoding Keeper: 清除编码记录`
 - `Encoding Keeper: 清除所有编码记录`
+- `Encoding Keeper: 记录使用编码`
+- `Encoding Keeper: 一键转码为`
+
+## Notes and Limitations
+
+- Encoding detection is conservative, not perfect. Some non-UTF-8 byte sequences can still be valid UTF-8.
+- Pure ASCII files are treated as valid UTF-8, which is normally safe because ASCII bytes are shared by many encodings.
+- Binary files with NUL bytes are skipped during conversion.
+- Files with unsaved editor changes are skipped during conversion.
 
 ## Requirements
 
-VS Code 1.100.0 or newer is required. No external runtime dependency is required.
+VS Code 1.100.0 or newer is required.
 
 ## Development
 
@@ -87,7 +108,7 @@ Install dependencies:
 npm install
 ```
 
-Compile:
+Compile and bundle:
 
 ```bash
 npm run compile
@@ -99,45 +120,25 @@ Run tests:
 npm test
 ```
 
-Press `F5` in VS Code to launch an Extension Development Host.
+Launch the extension locally by pressing `F5` in VS Code.
 
 ## Packaging and Publishing
 
-Create a local `.vsix` package:
+Create a production bundle and package:
 
 ```bash
 npm run package
-npx @vscode/vsce package --no-dependencies
+npm run vsix
 ```
 
 Install the generated package locally:
 
 ```bash
-code --install-extension encoding-keeper-0.0.1.vsix
+code --install-extension encoding-keeper-0.0.7.vsix
 ```
 
-This repository includes a package-only GitHub Actions workflow at `.github/workflows/package.yml`. It builds the extension and uploads a `.vsix` artifact without requiring Marketplace credentials.
-
-Push a version tag such as `v0.0.1` to run `Package VSIX`, create a GitHub Release, and attach the generated `.vsix`.
-
-```bash
-git tag v0.0.1
-git push origin v0.0.1
-```
-
-You can also run `Package VSIX` manually and provide a release tag to create or update a GitHub Release.
-
-The Marketplace publishing workflow is at `.github/workflows/release.yml`.
-
-To publish to the VS Code Marketplace:
-
-1. Create a VS Code Marketplace publisher. The current `publisher` in `package.json` is `yjrqz777`.
-2. Create an Azure DevOps personal access token for Marketplace publishing.
-3. Add the token to the GitHub repository secret named `VSCE_PAT`.
-4. Run the `Package and Publish` workflow manually and set `publish` to `true`, or push a version tag such as `v0.0.1`.
+The package-only workflow is `.github/workflows/package.yml`. The Marketplace publishing workflow is `.github/workflows/release.yml`; it requires the `VSCE_PAT` repository secret.
 
 ## Release Notes
 
-### 0.0.1
-
-Initial release.
+See [CHANGELOG.md](CHANGELOG.md).

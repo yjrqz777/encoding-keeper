@@ -2,7 +2,7 @@
   "name": "encoding-keeper",
   "displayName": "Encoding Keeper",
   "description": "Remember and restore file encodings automatically.",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "publisher": "yjrqz777",
   "icon": "assets/icon.png",
   "repository": {
