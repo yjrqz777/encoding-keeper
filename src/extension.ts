@@ -96,11 +96,12 @@ export function deactivate() {}
 
 async function handleDocumentOpened(document: vscode.TextDocument): Promise<void> {
 	try {
-		if (!isLocalFileDocument(document)) {
+		const recordTargetUri = getEncodingRecordTargetUri(document.uri);
+		if (!recordTargetUri) {
 			return;
 		}
 
-		const rememberedEncoding = await getRememberedEncoding(document.uri);
+		const rememberedEncoding = await getRememberedEncoding(recordTargetUri);
 		if (!rememberedEncoding) {
 			rememberObservedEncoding(document);
 			void updateStatusBar();
@@ -701,6 +702,31 @@ function rememberObservedEncoding(document: vscode.TextDocument): void {
 
 function isLocalFileDocument(document: vscode.TextDocument): boolean {
 	return document.uri.scheme === 'file';
+}
+
+function getEncodingRecordTargetUri(uri: vscode.Uri): vscode.Uri | undefined {
+	if (uri.scheme === 'file') {
+		return uri;
+	}
+
+	if (uri.scheme !== 'git') {
+		return undefined;
+	}
+
+	try {
+		const query = JSON.parse(uri.query) as { path?: unknown };
+		if (typeof query.path === 'string' && path.isAbsolute(query.path)) {
+			return vscode.Uri.file(query.path);
+		}
+	} catch {
+		// Older Git URI variants can still expose the original file path directly.
+	}
+
+	if (path.isAbsolute(uri.fsPath)) {
+		return vscode.Uri.file(uri.fsPath);
+	}
+
+	return undefined;
 }
 
 function getRecordFileUri(folder: vscode.WorkspaceFolder): vscode.Uri {

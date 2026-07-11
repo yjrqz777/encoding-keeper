@@ -6,6 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.8] - 2026-07-11
+
+- Automatically restore remembered encodings for VS Code Git diff documents.
+- Map virtual `git:` documents back to their corresponding workspace files.
+
 ## [0.0.7] - 2026-07-08
 
 - Improve transcoding behavior by decoding valid UTF-8 source bytes before writing the target encoding.
